@@ -22,6 +22,7 @@
     const slides = data.slides;
     const thumbs = Array.from(strip.querySelectorAll('.ppg-thumb'));
     const prev = query('.ppg-prev'), next = query('.ppg-next'), play = query('.ppg-play');
+    const stripPrev = query('.ppg-strip-prev'), stripNext = query('.ppg-strip-next');
     const status = query('.ppg-status'), error = query('.ppg-error');
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const interval = number(root.dataset.interval, 5000, 1000, 120000);
@@ -49,8 +50,8 @@
     }
     function updatePlay() {
       if (!play) return;
-      play.textContent = playing ? 'Pause slideshow' : 'Play slideshow';
-      play.setAttribute('aria-label', play.textContent);
+      play.setAttribute('aria-label', playing ? 'Pause slideshow' : 'Resume slideshow');
+      play.dataset.playing = String(playing);
       play.setAttribute('aria-pressed', String(playing));
       play.disabled = slides.length < 2;
     }
@@ -110,6 +111,17 @@
     function mark() {
       thumbs.forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.index) === index)));
       reveal(thumbs.find(button => Number(button.dataset.index) === index));
+    }
+    function updateStripArrows() {
+      const max = Math.max(0, strip.scrollWidth - strip.clientWidth);
+      const offset = Math.abs(strip.scrollLeft);
+      if (stripPrev) { stripPrev.hidden = max <= 2; stripPrev.disabled = offset <= 2; }
+      if (stripNext) { stripNext.hidden = max <= 2; stripNext.disabled = offset >= max - 2; }
+    }
+    function scrollStrip(direction) {
+      const rtl = window.getComputedStyle(strip).direction === 'rtl';
+      strip.scrollBy({left: direction * (rtl ? -1 : 1) * Math.max(44, strip.clientWidth * .8), behavior: motion.matches ? 'auto' : 'smooth'});
+      updateStripArrows();
     }
     async function select(target, manual) {
       if (destroyed) return;
@@ -175,6 +187,12 @@
     });
     if (prev) { prev.disabled = slides.length < 2; on(prev, 'click', () => select(requested - 1, true)); }
     if (next) { next.disabled = slides.length < 2; on(next, 'click', () => select(requested + 1, true)); }
+    if (stripPrev) on(stripPrev, 'click', () => scrollStrip(-1));
+    if (stripNext) on(stripNext, 'click', () => scrollStrip(1));
+    on(strip, 'scroll', updateStripArrows, {passive: true});
+    let stripObserver = null;
+    if (typeof ResizeObserver === 'function') { stripObserver = new ResizeObserver(updateStripArrows); stripObserver.observe(strip); }
+    else on(window, 'resize', updateStripArrows);
     if (play) on(play, 'click', () => { playing = !playing && slides.length > 1; updatePlay(); schedule(); });
     on(root, 'mouseenter', () => { hovered = true; schedule(); });
     on(root, 'mouseleave', () => { hovered = false; schedule(); });
@@ -193,12 +211,13 @@
     function destroy() {
       destroyed = true; token++; clearTimer(); loads.forEach(cancel => cancel()); cleanAnimations();
       listeners.forEach(remove => remove());
+      if (stripObserver) stripObserver.disconnect();
       root.classList.remove('ppg-initialized'); root.removeAttribute('aria-busy'); instances.delete(root);
     }
     instances.set(root, { destroy });
     frame(image, slides[index]);
     root.classList.add('ppg-initialized');
-    updatePlay(); mark(); schedule();
+    updatePlay(); mark(); updateStripArrows(); schedule();
   }
   function scan(scope) {
     if (scope.matches && scope.matches('.ppg[data-ppg]')) initialize(scope);

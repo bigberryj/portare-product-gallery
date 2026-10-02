@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2 — 2026-10-02
+- Replaced bottom Previous/Play/Next toolbar with small semi-transparent SVG arrows over each side of the main image and thumbnail strip.
+- Added independent per-product main-image and thumbnail-arrow toggles (default on for legacy products).
+- Thumbnail arrows scroll the strip only, hide when it fits, and disable at boundaries; responsive resize observation is cleaned up on teardown.
+- Autoplay pause/resume is a discreet image overlay and is absent when autoplay is off.
+
 ## 0.1.1 — 2026-10-02
 - Final staging verification: editor/media picker, per-image rich text, product controls, appearance settings, quote modal, arbitrary-page shortcode and desktop/mobile Brizy integration.
 - Fixed featured focal-point retention, quote-off suppression and late-shortcode stylesheet loading.

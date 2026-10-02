@@ -30,7 +30,7 @@ class PPG_Admin {
         echo '<div id="ppg_product_panel" class="panel woocommerce_options_panel hidden"><div class="options_group">';
         wp_nonce_field('ppg_save_'.$post->ID,'ppg_nonce');
         echo '<input type="hidden" name="ppg_present" value="1">';
-        foreach(array('enabled'=>'Enable automatic gallery (shortcodes always work)','quote_enabled'=>'Show existing Quote Builder button','autoplay'=>'Automatically rotate images') as $key=>$label) {
+        foreach(array('enabled'=>'Enable automatic gallery (shortcodes always work)','quote_enabled'=>'Show existing Quote Builder button','autoplay'=>'Automatically rotate images','main_arrows'=>'Show main image overlay arrows','thumb_arrows'=>'Show thumbnail strip overlay arrows') as $key=>$label) {
             echo '<p class="form-field"><label for="ppg_'.$key.'">'.esc_html($label).'</label><input type="hidden" name="ppg_config['.esc_attr($key).']" value="0"><input type="checkbox" id="ppg_'.esc_attr($key).'" name="ppg_config['.esc_attr($key).']" value="1" '.checked($c[$key],1,false).'></p>';
         }
         foreach(array('placement'=>array('auto'=>'Automatic (WooCommerce / supported Brizy layout)','shortcode'=>'Shortcode only'),'text_side'=>array('left'=>'Text left','right'=>'Text right'),'quote_align'=>array('left'=>'Left','center'=>'Center','right'=>'Right')) as $key=>$choices) {

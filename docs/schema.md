@@ -1,4 +1,4 @@
-# Storage schema — Portare Product Gallery 0.1.1
+# Storage schema — Portare Product Gallery 0.1.2
 
 No custom tables, no migration/version option, and no activation data writes. Existing absent or malformed metadata normalizes on read. Settings API stores `ppg_settings`; only the plugin's two metadata keys are written by the product save handler.
 
@@ -15,10 +15,14 @@ No custom tables, no migration/version option, and no activation data writes. Ex
   'quote_align' => 'left',// left|center|right
   'autoplay' => 0,        // integer 0|1
   'interval' => 5,        // seconds, bounded 1..120, decimal accepted
+  'main_arrows' => 1,     // integer 0|1, main-image overlay navigation
+  'thumb_arrows' => 1,    // integer 0|1, thumbnail strip overlay scrolling
 ]
 ```
 
 `enabled` gates automatic integration, NOT explicit shortcode rendering. `placement=shortcode` prevents automatic hooks even if enabled. Frontend `data-interval` uses milliseconds; the stored `interval` is seconds.
+
+New arrow flags default to on when absent in older metadata. Both are independent per-product controls. They do not modify attachment associations or descriptions. Thumbnail arrows are hidden when the strip fits, and disabled at scroll boundaries. Autoplay pause/resume is a discreet SVG overlay only for autoplay-enabled products; no bottom toolbar is emitted.
 
 ## Product `_ppg_slides`
 

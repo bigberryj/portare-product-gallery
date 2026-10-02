@@ -9,7 +9,7 @@ class PPG {
         add_action('wp_enqueue_scripts', array(__CLASS__, 'register_assets'));
     }
     public static function config_defaults() {
-        return array('enabled'=>0, 'placement'=>'auto', 'text_side'=>'left', 'quote_enabled'=>1, 'quote_align'=>'left', 'autoplay'=>0, 'interval'=>5);
+        return array('enabled'=>0, 'placement'=>'auto', 'text_side'=>'left', 'quote_enabled'=>1, 'quote_align'=>'left', 'autoplay'=>0, 'interval'=>5, 'main_arrows'=>1, 'thumb_arrows'=>1);
     }
     public static function fonts() {
         return array('inherit'=>'inherit', 'system'=>'system-ui, -apple-system, sans-serif', 'sans'=>'Arial, Helvetica, sans-serif', 'serif'=>'Georgia, Times, serif');
@@ -39,7 +39,7 @@ class PPG {
     }
     public static function sanitize_config($raw) {
         $raw=is_array($raw)?$raw:array(); $out=self::config_defaults();
-        foreach (array('enabled','quote_enabled','autoplay') as $key) {
+        foreach (array('enabled','quote_enabled','autoplay','main_arrows','thumb_arrows') as $key) {
             if (array_key_exists($key,$raw)) { $out[$key]=self::flag($raw[$key]); }
         }
         $out['placement']=self::choice($raw['placement']??null,array('auto','shortcode'),'auto');
@@ -138,9 +138,11 @@ class PPG {
 <section class="ppg" data-ppg data-product-id="<?php echo esc_attr($id); ?>" data-text-side="<?php echo esc_attr($config['text_side']); ?>" data-autoplay="<?php echo esc_attr($config['autoplay']); ?>" data-interval="<?php echo esc_attr($config['interval']*1000); ?>" data-transition="<?php echo esc_attr($settings['transition']); ?>" data-duration="<?php echo esc_attr($settings['duration']); ?>" data-load-effect="<?php echo esc_attr($settings['load_effect']); ?>" data-text-fade="<?php echo esc_attr($settings['text_fade']); ?>" style="<?php echo esc_attr($style); ?>">
  <div class="ppg-copy"><h2 class="ppg-title"><?php echo esc_html($product->get_name()); ?></h2><div class="ppg-description"><?php echo $first ? $first['description'] : $description; ?></div>
  <?php if($config['quote_enabled']) { ?><div class="ppg-quote" data-align="<?php echo esc_attr($config['quote_align']); ?>"><?php echo self::quote_html($id); ?></div><?php } ?></div>
- <div class="ppg-media"><div class="ppg-stage"><?php if($first) { ?><img class="ppg-main-image" src="<?php echo esc_url($first['src']); ?>" srcset="<?php echo esc_attr($first['srcset']); ?>" sizes="<?php echo esc_attr($first['sizes']); ?>" width="<?php echo esc_attr($first['width']); ?>" height="<?php echo esc_attr($first['height']); ?>" alt="<?php echo esc_attr($first['alt']); ?>" style="object-position:<?php echo esc_attr($first['x'].'% '.$first['y'].'%'); ?>;transform:scale(<?php echo esc_attr($first['zoom']/100); ?>)"><?php } else { ?><p>No product images available.</p><?php } ?></div>
- <div class="ppg-toolbar"<?php if(count($slides)<2) { echo ' hidden'; } ?>><button type="button" class="ppg-prev" aria-label="Previous image">Previous</button><button type="button" class="ppg-play" aria-label="Play slideshow" aria-pressed="false">Play</button><button type="button" class="ppg-next" aria-label="Next image">Next</button></div>
- <div class="ppg-thumbnails" aria-label="Product images"><?php foreach($slides as $index=>$slide) { ?><button type="button" class="ppg-thumb" data-index="<?php echo esc_attr($index); ?>" aria-pressed="<?php echo $index===0?'true':'false'; ?>" aria-label="<?php echo esc_attr('View image '.($index+1)); ?>"><?php echo wp_get_attachment_image($slide['id'],'thumbnail',false,array('alt'=>$slide['alt'],'loading'=>'lazy')); ?></button><?php } ?></div></div>
+ <div class="ppg-media"><div class="ppg-stage"><?php if($first) { ?><img class="ppg-main-image" src="<?php echo esc_url($first['src']); ?>" srcset="<?php echo esc_attr($first['srcset']); ?>" sizes="<?php echo esc_attr($first['sizes']); ?>" width="<?php echo esc_attr($first['width']); ?>" height="<?php echo esc_attr($first['height']); ?>" alt="<?php echo esc_attr($first['alt']); ?>" style="object-position:<?php echo esc_attr($first['x'].'% '.$first['y'].'%'); ?>;transform:scale(<?php echo esc_attr($first['zoom']/100); ?>)"><?php } else { ?><p>No product images available.</p><?php } ?>
+ <?php if(count($slides)>1 && $config['main_arrows']) { ?><button type="button" class="ppg-nav ppg-nav-left ppg-prev" aria-label="Previous image"><?php echo self::icon('left'); ?></button><button type="button" class="ppg-nav ppg-nav-right ppg-next" aria-label="Next image"><?php echo self::icon('right'); ?></button><?php } ?>
+ <?php if(count($slides)>1 && $config['autoplay']) { ?><button type="button" class="ppg-nav ppg-play" aria-label="Pause slideshow" aria-pressed="true"><?php echo self::icon('pause').self::icon('play'); ?></button><?php } ?></div>
+ <div class="ppg-thumbnail-nav"><div class="ppg-thumbnails" aria-label="Product images"><?php foreach($slides as $index=>$slide) { ?><button type="button" class="ppg-thumb" data-index="<?php echo esc_attr($index); ?>" aria-pressed="<?php echo $index===0?'true':'false'; ?>" aria-label="<?php echo esc_attr('View image '.($index+1)); ?>"><?php echo wp_get_attachment_image($slide['id'],'thumbnail',false,array('alt'=>$slide['alt'],'loading'=>'lazy')); ?></button><?php } ?></div>
+ <?php if(count($slides)>1 && $config['thumb_arrows']) { ?><button type="button" class="ppg-nav ppg-nav-left ppg-strip-prev" aria-label="Scroll thumbnails left"><?php echo self::icon('left'); ?></button><button type="button" class="ppg-nav ppg-nav-right ppg-strip-next" aria-label="Scroll thumbnails right"><?php echo self::icon('right'); ?></button><?php } ?></div></div>
  <p class="ppg-status" role="status" aria-live="polite"></p><p class="ppg-error" role="alert" hidden>Unable to load this image.</p>
  <script class="ppg-data" type="application/json"><?php echo wp_json_encode(array('slides'=>$slides,'defaultDescription'=>$description),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT); ?></script>
 </section>
@@ -148,6 +150,10 @@ class PPG {
     }
     public static function should_auto($id) {
         $c=self::config($id); return $c['enabled'] && $c['placement']==='auto' && (bool)self::public_product($id);
+    }
+    public static function icon($name) {
+        $paths=array('left'=>'<path d="M14 5l-7 7 7 7"/>','right'=>'<path d="M10 5l7 7-7 7"/>','pause'=>'<path d="M8 5v14M16 5v14"/>','play'=>'<path d="M8 5l11 7-11 7z"/>');
+        return isset($paths[$name]) ? '<svg class="ppg-icon-'.$name.'" aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'.$paths[$name].'</svg>' : '';
     }
     public static function auto_hooks() {
         if (!is_product() || !self::should_auto(get_queried_object_id())) { return; }

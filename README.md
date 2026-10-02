@@ -10,6 +10,7 @@ Upload the plugin ZIP using **Plugins → Add New → Upload Plugin**, then acti
 - Enable automatic gallery and choose automatic placement, or use shortcode-only mode.
 - Choose text on the left or right, quote-button enabled/disabled and left/center/right alignment.
 - Enable/disable automatic rotation and set an interval of 1–120 seconds.
+- Independently toggle **Show main image overlay arrows** and **Show thumbnail strip overlay arrows**.
 - Add images from the Media Library. New selections append without duplicates.
 - Add formatted paragraphs per photograph, reorder with drag or Up/Down, set focal point/zoom, or remove gallery associations. Media Library files are never deleted by this plugin.
 - Save using the normal product **Update** button.
@@ -32,7 +33,7 @@ On supported Brizy product templates, automatic mode enhances the existing two-c
 Detection is deliberately conservative: exactly one eligible row, two columns, dynamic title/content and a single image-only media column. Unsupported layouts remain unchanged and receive a visible placement notice; place a shortcode manually in that case. Brizy editor mode is not enhanced. Standard WooCommerce templates use scoped hooks instead.
 
 ## Interaction
-Four thumbnail slots on desktop, horizontal scrolling for additional images, swipe and keyboard arrows/Home/End, visible previous/next/play/pause. Clicks update both the image and its description after the new image loads. Failed loads retain the last valid content and show an error. Manual selection stops autoplay; hover, focus and hidden tabs pause it. Reduced-motion visitors do not auto-start. Mobile order: title, image, thumbnails, controls, description, quote, retained icons.
+Four thumbnail slots on desktop, horizontal scrolling for additional images, swipe and keyboard arrows/Home/End, semi-transparent main-image and thumbnail-strip overlay arrows (no bottom button row). Clicks update both the image and its description after the new image loads. Failed loads retain the last valid content and show an error. Manual selection stops autoplay; hover, focus and hidden tabs pause it. Reduced-motion visitors do not auto-start. Autoplay-enabled products have only a small pause/resume icon over the image. Thumbnail arrows scroll without selecting another image and hide when no overflow exists. Mobile order: title, image, thumbnails, description, quote, retained icons.
 
 ## Data retention and removal
 No custom tables. Product gallery metadata and appearance options are retained on deactivation/uninstall. Media files, WooCommerce descriptions and Brizy content are never deleted. See `docs/schema.md`.

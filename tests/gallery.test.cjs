@@ -33,8 +33,24 @@ function setup(html = markup(), reduced = false) {
 function checked(name, fn) { test(name, async () => { const env = setup(); try { await fn(env); } finally { env.close(); } }); }
 checked('initializes accessible controls and maintains focal frame', e => {
   assert.ok(e.root.classList.contains('ppg-initialized'));
-  assert.equal(e.root.querySelector('.ppg-play').textContent, 'Play slideshow');
+  assert.equal(e.root.querySelector('.ppg-play').getAttribute('aria-label'), 'Resume slideshow');
   assert.equal(e.root.querySelector('img').style.getPropertyValue('--ppg-zoom'), '1.5');
+});
+test('thumbnail overlay arrows scroll only the strip, respect boundaries and resize', () => {
+  const html=markup().replace('<button class="ppg-prev">','<button class="ppg-strip-prev"></button><button class="ppg-strip-next"></button><button class="ppg-prev">');
+  const e=setup(html);
+  try {
+    const strip=e.root.querySelector('.ppg-thumbnails'),left=e.root.querySelector('.ppg-strip-prev'),right=e.root.querySelector('.ppg-strip-next');
+    let width=800;Object.defineProperty(strip,'clientWidth',{value:400});Object.defineProperty(strip,'scrollWidth',{get:()=>width});
+    e.w.dispatchEvent(new e.w.Event('resize'));assert.equal(left.disabled,true);assert.equal(right.hidden,false);
+    right.click();assert.equal(strip.scrollLeft,320);assert.equal(e.loads.length,0);assert.equal(e.root.querySelector('.ppg-main-image').getAttribute('src'),'https://example.test/0.jpg');
+    strip.scrollLeft=400;strip.dispatchEvent(new e.w.Event('scroll'));assert.equal(right.disabled,true);assert.equal(left.disabled,false);
+    width=400;e.w.dispatchEvent(new e.w.Event('resize'));assert.equal(left.hidden,true);assert.equal(right.hidden,true);
+  } finally {e.close();}
+});
+checked('main overlay arrows select next and previous images', async e => {
+  e.root.querySelector('.ppg-next').click();await e.resolve();assert.equal(e.root.querySelector('[data-index="1"]').getAttribute('aria-pressed'),'true');
+  e.root.querySelector('.ppg-prev').click();await e.resolve();assert.equal(e.root.querySelector('[data-index="0"]').getAttribute('aria-pressed'),'true');
 });
 checked('loads before atomic image/text replacement and retains responsive sources', async e => {
   e.click(1); assert.equal(e.root.querySelector('.ppg-description').textContent, 'Initial description');

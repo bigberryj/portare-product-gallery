@@ -41,6 +41,14 @@ const server = http.createServer((req, res) => {
     await page.evaluate(() => Promise.all(document.querySelector('.ppg').getAnimations().map(a => a.finished.catch(() => {}))));
     await page.screenshot({ path: path.join(output, 'desktop.png'), fullPage: true });
     console.log('PASS desktop columns / four thumbs / 24px gaps / 32px radius / overflow');
+    assert.equal(await page.locator('.ppg-toolbar').count(),0);
+    const nav=await page.evaluate(()=>{const stage=document.querySelector('.ppg-stage').getBoundingClientRect(),button=document.querySelector('.ppg-next').getBoundingClientRect();return {inside:button.left>=stage.left&&button.right<=stage.right&&button.top>=stage.top&&button.bottom<=stage.bottom,width:button.width};});
+    assert.equal(nav.inside,true);assert.ok(nav.width>=44);
+    const beforeScroll=await page.locator('.ppg-main-image').getAttribute('src');
+    await page.locator('.ppg-strip-next').click();await page.waitForFunction(()=>document.querySelector('.ppg-thumbnails').scrollLeft>0);
+    assert.equal(await page.locator('.ppg-main-image').getAttribute('src'),beforeScroll);
+    await page.locator('.ppg-strip-prev').click();await page.waitForFunction(()=>document.querySelector('.ppg-thumbnails').scrollLeft<2);
+    console.log('PASS overlay geometry / 44px targets / strip arrows scroll without changing image / no toolbar');
     const y = await page.evaluate(() => scrollY);
     await page.locator('.ppg-thumb').first().focus(); await page.keyboard.press('End');
     await page.waitForFunction(() => document.querySelector('[data-index="5"]').getAttribute('aria-pressed') === 'true');
@@ -90,7 +98,7 @@ const server = http.createServer((req, res) => {
     console.log('PASS reduced-motion initial off / manual play / manual selection stops autoplay');
     const baseline = await browser.newPage({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
     await baseline.goto(url);
-    assert.equal(await baseline.locator('.ppg-toolbar').isVisible(), false);
+    assert.equal(await baseline.locator('.ppg-prev').isVisible(), false);
     assert.equal(await baseline.locator('.ppg-stage').isVisible(), true);
     assert.equal(await baseline.locator('.ppg-title').isVisible(), true);
     assert.equal(await baseline.locator('.ppg-thumb').count(), 6);
