@@ -8,7 +8,12 @@ ORIGIN=os.environ.get('PPG_ORIGIN','http://100.96.13.84:8082')
 COOKIES=os.environ.get('PPG_COOKIES','/home/byron/.hermes/cache/scratch/ppg-local-cookies.json')
 WP=shlex.split(os.environ.get('PPG_WP','sudo -n docker exec liveedge-ols php /usr/local/bin/wp --path=/var/www/html --allow-root'))
 def wp(code):
- r=subprocess.run(WP+['eval',code],text=True,capture_output=True,timeout=90)
+ if WP[0]=='railway':
+  boundary=WP.index('--');transport=WP[:boundary+1]
+  upload=subprocess.run(transport+['cat > /tmp/ppg-browser-helper.php'],input='<?php\n'+code,text=True,capture_output=True,timeout=90)
+  if upload.returncode:raise RuntimeError('Staging QA helper upload failed')
+  r=subprocess.run(WP+['eval-file','/tmp/ppg-browser-helper.php'],text=True,capture_output=True,timeout=90)
+ else:r=subprocess.run(WP+['eval',code],text=True,capture_output=True,timeout=90)
  if r.returncode: raise RuntimeError('WP-CLI QA helper failed (sensitive transport output suppressed)')
  return r.stdout.strip()
 snapshot=json.loads(wp('echo wp_json_encode(["config"=>get_post_meta(10440,"_ppg_config",true),"slides"=>get_post_meta(10440,"_ppg_slides",true),"has_slides"=>metadata_exists("post",10440,"_ppg_slides"),"settings"=>get_option("ppg_settings",null),"content"=>get_post_field("post_content",10440)]);'))
@@ -16,6 +21,7 @@ identity=json.loads(wp('echo wp_json_encode(["environment"=>wp_get_environment_t
 if identity['environment']!='staging' or identity['origin'].rstrip('/')!=ORIGIN.rstrip('/'):
  raise RuntimeError('QA target mismatch: expected isolated staging browser and WP-CLI origins to match')
 checks=[]
+contentAfterUpdate=None
 def check(ok,name):
  if not ok: raise AssertionError(name)
  checks.append(name);print('PASS:',name)
@@ -55,6 +61,7 @@ try:
   check(rows.count()==6 and rows.last.get_attribute('data-id')==removed,'media picker appends removed association')
   with page.expect_navigation(wait_until='domcontentloaded',timeout=90000): page.locator('#publish').click()
   page.wait_for_timeout(500)
+  contentAfterUpdate=json.loads(wp('echo wp_json_encode(get_post_field("post_content",10440));'))
   edit();rows=page.locator('.ppg-admin-rows>.ppg-admin-row')
   check(page.locator('select[name="ppg_config[text_side]"]').input_value()=='right','text side survives normal product Update')
   check(page.locator('select[name="ppg_config[quote_align]"]').input_value()=='center','quote alignment survives Update')
@@ -79,7 +86,8 @@ try:
   b.close()
 finally:
  # Only restore fields intentionally exercised by this local test, never a full DB snapshot.
+ snapshot['expected_content']=contentAfterUpdate
  payload=json.dumps(snapshot,separators=(',',':'));import base64
  encoded=base64.b64encode(payload.encode()).decode()
- wp('$s=json_decode(base64_decode("'+encoded+'"),true);update_post_meta(10440,"_ppg_config",$s["config"]);if($s["has_slides"])update_post_meta(10440,"_ppg_slides",wp_slash($s["slides"]));else delete_post_meta(10440,"_ppg_slides");if($s["settings"]===null)delete_option("ppg_settings");else update_option("ppg_settings",$s["settings"]);if(get_post_field("post_content",10440)!==$s["content"])wp_update_post(wp_slash(["ID"=>10440,"post_content"=>$s["content"]]));echo "restored";')
+ wp('$s=json_decode(base64_decode("'+encoded+'"),true);update_post_meta(10440,"_ppg_config",$s["config"]);if($s["has_slides"])update_post_meta(10440,"_ppg_slides",wp_slash($s["slides"]));else delete_post_meta(10440,"_ppg_slides");if($s["settings"]===null)delete_option("ppg_settings");else update_option("ppg_settings",$s["settings"]);$current=get_post_field("post_content",10440);if($s["expected_content"]!==null&&$current===$s["expected_content"]&&$current!==$s["content"])wp_update_post(wp_slash(["ID"=>10440,"post_content"=>$s["content"]]));echo "restored";')
 print('PASS:',len(checks),'authenticated editor/browser checks')

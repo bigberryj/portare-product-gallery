@@ -1,4 +1,4 @@
-# Storage schema — Portare Product Gallery 0.1.0
+# Storage schema — Portare Product Gallery 0.1.1
 
 No custom tables, no migration/version option, and no activation data writes. Existing absent or malformed metadata normalizes on read. Settings API stores `ppg_settings`; only the plugin's two metadata keys are written by the product save handler.
 
@@ -61,6 +61,32 @@ All keys are normalized using `PPG::setting_specs()`:
 | text_fade | 1 | integer 0/1 |
 
 No user-authored CSS/font stacks. Root CSS variables follow `docs/plans/build.md`; `text_fade` is emitted additionally as `data-text-fade`.
+
+## Existing WordPress relationships
+
+```mermaid
+erDiagram
+    WP_POSTS ||--o{ WP_POSTMETA : stores
+    WP_POSTS ||--o{ WP_POSTS : attachment_parent
+    WP_POSTS {
+        bigint ID PK
+        varchar post_type
+        longtext post_content
+    }
+    WP_POSTMETA {
+        bigint meta_id PK
+        bigint post_id
+        varchar meta_key
+        longtext meta_value
+    }
+    WP_OPTIONS {
+        bigint option_id PK
+        varchar option_name UK
+        longtext option_value
+    }
+```
+
+Table prefix is installation-defined. These are existing core tables, not new tables or new physical foreign keys. Attachment IDs within `_ppg_slides` are logical references, validated on read/save; deleted media is ignored. No cascade deletion is introduced.
 
 ## Retention
 

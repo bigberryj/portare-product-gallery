@@ -2,7 +2,7 @@
 /* Minimal WP/WC doubles. KSES tests check the allowlist, not WP's implementation. */
 define('ABSPATH', __DIR__.'/');
 define('PPG_PLUGIN_FILE',dirname(__DIR__).'/portare-product-gallery.php');
-define('PPG_VERSION','0.1.0');
+define('PPG_VERSION','0.1.1');
 function reset_state() { $GLOBALS['meta']=array(); $GLOBALS['options']=array(); $GLOBALS['hooks']=array(); $GLOBALS['removed']=array(); $GLOBALS['enqueued']=array(); $GLOBALS['types']=array(10440=>'product'); $GLOBALS['statuses']=array(10440=>'publish'); $GLOBALS['password']=false; $GLOBALS['cap']=true; $GLOBALS['revision']=false; $GLOBALS['autosave']=false; $GLOBALS['queried']=10440; $GLOBALS['is_product']=true; $_POST=array(); }
 reset_state();
 function get_post_meta($id,$key,$single=true){return $GLOBALS['meta'][$id][$key]??'';}

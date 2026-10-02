@@ -1,6 +1,6 @@
 {
   "name": "portare-product-gallery",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "scripts": {"test": "node --test tests/gallery.test.cjs tests/brizy-bridge.test.cjs", "test:browser": "node tests/gallery.browser.cjs"},
   "devDependencies": {"jsdom": "30.1.1", "playwright": "1.63.0"}
