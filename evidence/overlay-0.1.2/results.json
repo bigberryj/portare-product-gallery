@@ -1,0 +1,26 @@
+{
+  "checks": [
+    "bottom toolbar removed",
+    "autoplay-off page has no play/pause button",
+    "main-image arrows are overlays inside image",
+    "thumbnail arrows overlay both strip sides",
+    "main right arrow selects next photograph",
+    "main left arrow selects previous photograph",
+    "strip arrow scrolls without changing main photograph",
+    "strip left arrow returns to start",
+    "overlay arrows are semi-transparent at rest",
+    "mobile layout has no page overflow",
+    "mobile arrows retain 44px touch targets",
+    "mobile thumbnail arrow scrolls strip",
+    "product toggle save/reload main=False thumbs=True",
+    "frontend obeys independent toggles main=False thumbs=True",
+    "product toggle save/reload main=True thumbs=False",
+    "frontend obeys independent toggles main=True thumbs=False",
+    "product toggle save/reload main=False thumbs=False",
+    "frontend obeys independent toggles main=False thumbs=False",
+    "product toggle save/reload main=True thumbs=True",
+    "frontend obeys independent toggles main=True thumbs=True",
+    "no overlay/editor browser JavaScript exceptions"
+  ],
+  "origin": "https://portare.up.railway.app"
+}
