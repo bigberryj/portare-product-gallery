@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.4 — 2026-11-02
+- Filmstrip uses uncropped medium-large responsive image families instead of 150px square thumbnails.
+- Added filmstrip-specific responsive sizes while keeping lazy loading, async decoding, the existing crop, four-slot layout and controls.
+- No media regeneration, stored-data changes or Brizy content edits.
+
 ## 0.1.3 — 2026-11-02
 - Added a product-specific, read-only shortcode and Copy shortcode button at the top of the product editor’s Portare Gallery tab.
 - Added accessible copy feedback, clipboard fallback/manual-copy guidance and manual-placement instructions.

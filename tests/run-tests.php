@@ -41,6 +41,14 @@ test(strpos($panel,'id="ppg_shortcode" class="code" readonly')!==false,'shortcod
 test(strpos($panel,'type="button" class="button ppg-copy-shortcode"')!==false,'copy button cannot submit product');
 test(strpos($panel,'aria-live="polite"')!==false,'accessible copy feedback');
 reset_state();$html=PPG::render(10440);test(substr_count($html,'class="ppg-thumb"')===6,'fallback more than four thumbnails');
+test(count($GLOBALS['attachment_image_calls'])===6,'one responsive thumbnail per slide');
+foreach($GLOBALS['attachment_image_calls'] as $call){
+ test($call['size']==='medium_large','filmstrip uses uncropped higher-resolution image family');
+ test($call['attrs']['sizes']==='(max-width: 767px) 25vw, 20vw','filmstrip supplies bounded responsive source sizes');
+ test($call['attrs']['loading']==='lazy','filmstrip retains lazy loading');
+ test($call['attrs']['decoding']==='async','filmstrip decoding does not block rendering');
+}
+
 $GLOBALS['meta'][10440]['_ppg_slides']=array(array('id'=>12,'description'=>'</script><p>Safe</p>'));$html=PPG::render(10440);test(strpos($html,'\\u003C')!==false,'JSON HEX protects script context');
 $c=PPG::sanitize_config(array('main_arrows'=>'0','thumb_arrows'=>'1'));test($c['main_arrows']===0 && $c['thumb_arrows']===1,'independent arrow flags');
 foreach(array('true',array(1),'garbage') as $bad){test(PPG::sanitize_config(array('main_arrows'=>$bad))['main_arrows']===0,'main arrow flag strict');}

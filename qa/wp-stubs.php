@@ -2,8 +2,8 @@
 /* Minimal WP/WC doubles. KSES tests check the allowlist, not WP's implementation. */
 define('ABSPATH', __DIR__.'/');
 define('PPG_PLUGIN_FILE',dirname(__DIR__).'/portare-product-gallery.php');
-define('PPG_VERSION','0.1.3');
-function reset_state() { $GLOBALS['meta']=array(); $GLOBALS['options']=array(); $GLOBALS['hooks']=array(); $GLOBALS['removed']=array(); $GLOBALS['enqueued']=array(); $GLOBALS['types']=array(10440=>'product'); $GLOBALS['statuses']=array(10440=>'publish'); $GLOBALS['password']=false; $GLOBALS['cap']=true; $GLOBALS['revision']=false; $GLOBALS['autosave']=false; $GLOBALS['queried']=10440; $GLOBALS['is_product']=true; $_POST=array(); }
+define('PPG_VERSION','0.1.4');
+function reset_state() { $GLOBALS['attachment_image_calls']=array(); $GLOBALS['meta']=array(); $GLOBALS['options']=array(); $GLOBALS['hooks']=array(); $GLOBALS['removed']=array(); $GLOBALS['enqueued']=array(); $GLOBALS['types']=array(10440=>'product'); $GLOBALS['statuses']=array(10440=>'publish'); $GLOBALS['password']=false; $GLOBALS['cap']=true; $GLOBALS['revision']=false; $GLOBALS['autosave']=false; $GLOBALS['queried']=10440; $GLOBALS['is_product']=true; $_POST=array(); }
 reset_state();
 function get_post_meta($id,$key,$single=true){return $GLOBALS['meta'][$id][$key]??'';}
 function update_post_meta($id,$key,$value){$GLOBALS['meta'][$id][$key]=$value;}
@@ -34,7 +34,7 @@ function wp_enqueue_script($handle){$GLOBALS['enqueued'][]=$handle;}
 function wp_get_attachment_image_src($id,$size){return array('https://example.test/'.$id.'.jpg',1600,1000);}
 function wp_get_attachment_image_srcset($id,$size){return '';}
 function wp_get_attachment_image_sizes($id,$size){return '';}
-function wp_get_attachment_image($id,$size,$icon=false,$attrs=array()){return '<img src="https://example.test/'.$id.'.jpg" alt="">';}
+function wp_get_attachment_image($id,$size,$icon=false,$attrs=array()){$GLOBALS['attachment_image_calls'][]=array('id'=>$id,'size'=>$size,'attrs'=>$attrs);return '<img src="https://example.test/'.$id.'.jpg" alt="">';}
 function wp_json_encode($value,$flags=0){return json_encode($value,$flags);}
 function add_action($hook,$cb,$priority=10,$accepted=1){$GLOBALS['hooks'][$hook][$priority][]=array($cb,$accepted);}
 function add_filter(...$args){add_action(...$args);}

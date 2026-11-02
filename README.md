@@ -34,6 +34,9 @@ On supported Brizy product templates, automatic mode enhances the existing two-c
 
 Detection is deliberately conservative: exactly one eligible row, two columns, dynamic title/content and a single image-only media column. Unsupported layouts remain unchanged and receive a visible placement notice; place a shortcode manually in that case. Brizy editor mode is not enhanced. Standard WooCommerce templates use scoped hooks instead.
 
+## Filmstrip image quality
+Filmstrip images use the uncropped WordPress medium-large image family with responsive source selection instead of tiny square thumbnails. Lazy loading and asynchronous decoding keep downloads efficient; the visible filmstrip size and cover crop are unchanged. Existing generated image sizes are reused; no thumbnail regeneration is required.
+
 ## Interaction
 Four thumbnail slots on desktop, horizontal scrolling for additional images, swipe and keyboard arrows/Home/End, semi-transparent main-image and thumbnail-strip overlay arrows (no bottom button row). Clicks update both the image and its description after the new image loads. Failed loads retain the last valid content and show an error. Manual selection stops autoplay; hover, focus and hidden tabs pause it. Reduced-motion visitors do not auto-start. Autoplay-enabled products have only a small pause/resume icon over the image. Thumbnail arrows scroll without selecting another image and hide when no overflow exists. Mobile order: title, image, thumbnails, description, quote, retained icons.
 
