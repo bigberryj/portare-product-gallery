@@ -5,6 +5,27 @@
     var $panel = $('#ppg_product_panel');
     if (!$panel.length) return;
     var $list = $panel.find('.ppg-admin-rows');
+    $panel.on('click', '#ppg_shortcode', function () { this.select(); });
+    $panel.on('click', '.ppg-copy-shortcode', async function () {
+      var input = document.getElementById('ppg_shortcode');
+      var $status = $panel.find('.ppg-copy-status');
+      this.disabled = true;
+      try {
+        var copied = false;
+        if (navigator.clipboard && window.isSecureContext) {
+          try { await navigator.clipboard.writeText(input.value); copied = true; } catch (_) { /* Try selection-based copy below. */ }
+        }
+        if (!copied) {
+          input.focus(); input.select();
+          copied = document.execCommand('copy');
+        }
+        if (!copied) throw new Error('Clipboard unavailable');
+        $status.text('Shortcode copied.');
+      } catch (_) {
+        input.focus(); input.select();
+        $status.text('Could not copy automatically. The shortcode is selected; press Ctrl+C (Windows/Linux) or Command+C (Mac) to copy.');
+      } finally { this.disabled = false; }
+    });
     var serial = 1000;
     function syncEditors() {
       if (window.tinymce) window.tinymce.triggerSave();

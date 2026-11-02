@@ -6,6 +6,8 @@ Price-free, description-led WooCommerce product galleries. Requires WordPress 6.
 Upload the plugin ZIP using **Plugins → Add New → Upload Plugin**, then activate. Alternatively copy this folder to `wp-content/plugins/portare-product-gallery/`. No npm/build step is needed at runtime. Automatic replacement is disabled on products by default.
 
 ## Product editor
+At the top of the Portare Gallery tab, use the read-only **Gallery shortcode** field and **Copy shortcode** button. The explicit product ID works on any page or elsewhere on the same product page. Choose **Shortcode only** to disable automatic placement without disabling your shortcode. If clipboard access is blocked, select the field and copy manually. No product update is needed to obtain the code.
+
 **Products → Edit product → Product data → Portare Gallery**:
 - Enable automatic gallery and choose automatic placement, or use shortcode-only mode.
 - Choose text on the left or right, quote-button enabled/disabled and left/center/right alignment.

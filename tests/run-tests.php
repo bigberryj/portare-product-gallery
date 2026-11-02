@@ -36,6 +36,10 @@ $_POST=$valid;$GLOBALS['cap']=false;PPG_Admin::save(10440);test(!$GLOBALS['meta'
 $_POST=$valid;$_POST['ppg_config']='bad';$_POST['ppg_slides']='bad';PPG_Admin::save(10440);test($GLOBALS['meta'][10440]['_ppg_slides']===array(),'malformed slides save safe');test($GLOBALS['meta'][10440]['_ppg_config']===PPG::config_defaults(),'malformed config save safe');
 PPG_Admin::settings();test($GLOBALS['registered'][1]==='ppg_settings','Settings API option');test($GLOBALS['registered'][2]['sanitize_callback']===array('PPG','sanitize_settings'),'Settings API sanitizer');
 $GLOBALS['post']=(object)array('ID'=>10440,'post_type'=>'product');ob_start();PPG_Admin::panel();$panel=ob_get_clean();test(strpos($panel,'ppg_nonce')!==false,'product panel nonce');test(strpos($panel,'ppg_slides[0][description]')!==false,'keyed row descriptions');test(strpos($panel,'ppg-row-template')!==false,'dynamic row template');test(strpos($panel,'ppg-remove')!==false,'association removal UI');
+test(strpos($panel,'value="[portare_product_gallery product_id=&quot;10440&quot;]"')!==false,'product-specific escaped shortcode');
+test(strpos($panel,'id="ppg_shortcode" class="code" readonly')!==false,'shortcode read only and not a saved field');
+test(strpos($panel,'type="button" class="button ppg-copy-shortcode"')!==false,'copy button cannot submit product');
+test(strpos($panel,'aria-live="polite"')!==false,'accessible copy feedback');
 reset_state();$html=PPG::render(10440);test(substr_count($html,'class="ppg-thumb"')===6,'fallback more than four thumbnails');
 $GLOBALS['meta'][10440]['_ppg_slides']=array(array('id'=>12,'description'=>'</script><p>Safe</p>'));$html=PPG::render(10440);test(strpos($html,'\\u003C')!==false,'JSON HEX protects script context');
 $c=PPG::sanitize_config(array('main_arrows'=>'0','thumb_arrows'=>'1'));test($c['main_arrows']===0 && $c['thumb_arrows']===1,'independent arrow flags');

@@ -1,4 +1,6 @@
-# Storage schema — Portare Product Gallery 0.1.2
+# Storage schema — Portare Product Gallery 0.1.3
+
+The 0.1.3 admin shortcode helper is derived from the current product ID and stores no data.
 
 No custom tables, no migration/version option, and no activation data writes. Existing absent or malformed metadata normalizes on read. Settings API stores `ppg_settings`; only the plugin's two metadata keys are written by the product save handler.
 

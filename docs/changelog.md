@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3 — 2026-11-02
+- Added a product-specific, read-only shortcode and Copy shortcode button at the top of the product editor’s Portare Gallery tab.
+- Added accessible copy feedback, clipboard fallback/manual-copy guidance and manual-placement instructions.
+- No frontend placement, stored settings, product content or Brizy template changes.
+
 ## 0.1.2 — 2026-10-02
 - Replaced bottom Previous/Play/Next toolbar with small semi-transparent SVG arrows over each side of the main image and thumbnail strip.
 - Added independent per-product main-image and thumbnail-arrow toggles (default on for legacy products).

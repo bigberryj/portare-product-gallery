@@ -28,6 +28,8 @@ class PPG_Admin {
         $c=PPG::config($post->ID); $product=wc_get_product($post->ID);
         $rows=$product?PPG::slide_rows($product):array();
         echo '<div id="ppg_product_panel" class="panel woocommerce_options_panel hidden"><div class="options_group">';
+        $shortcode='[portare_product_gallery product_id="'.PPG::id($post->ID).'"]';
+        echo '<div class="ppg-shortcode-box"><label for="ppg_shortcode">Gallery shortcode</label><div class="ppg-shortcode-controls"><input type="text" id="ppg_shortcode" class="code" readonly value="'.esc_attr($shortcode).'" aria-describedby="ppg_shortcode_help"><button type="button" class="button ppg-copy-shortcode">Copy shortcode</button></div><p id="ppg_shortcode_help">Paste into a Brizy shortcode element or WordPress Shortcode block on any page, or elsewhere on this product page. This code always displays this product. To place it manually instead of automatically, choose Shortcode only below. Publish the product before displaying its gallery publicly.</p><p class="ppg-copy-status" role="status" aria-live="polite"></p></div>';
         wp_nonce_field('ppg_save_'.$post->ID,'ppg_nonce');
         echo '<input type="hidden" name="ppg_present" value="1">';
         foreach(array('enabled'=>'Enable automatic gallery (shortcodes always work)','quote_enabled'=>'Show existing Quote Builder button','autoplay'=>'Automatically rotate images','main_arrows'=>'Show main image overlay arrows','thumb_arrows'=>'Show thumbnail strip overlay arrows') as $key=>$label) {
