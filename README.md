@@ -26,6 +26,16 @@ The WooCommerce **featured image stays first** and uses the full main product de
 ```
 Use a Brizy shortcode element, a WordPress Shortcode block, or another shortcode-rendering surface. Explicit IDs must be published, non-password-protected WooCommerce products. Shortcodes work independently of the automatic-enable toggle. A manually placed gallery takes precedence over automatic Brizy enhancement.
 
+## Product Setup media
+In **Products → Edit product → Product data → Portare Gallery → Product Setup**, enable the panel and choose:
+- **Pictures**: up to four ordered setup illustrations/photos, separate from the main filmstrip.
+- **15-second sequence**: two to four images with fades and optional gentle image movement; Play/Pause is visitor-controlled.
+- **Video**: choose a prepared MP4/WebM from the Media Library with an optional poster.
+
+Use **Preview** to check unsaved choices. **Generate 15-second MP4** renders a real video locally in a supported browser—keep the tab in the foreground. Download it, or save it to the Media Library and then click the product's normal **Update** to publish the selection. Video generation is an image presentation, not synthesized folding mechanics. Unsupported recording, missing images, tainted canvas, interrupted recording and upload failures show visible errors rather than pretending to succeed. No outside generator, AI charge, server FFmpeg or new paid service is used.
+
+The setup area is below the description. Existing Brizy artwork stays unchanged by default. Optional replacement applies only to one safely identifiable image-only retained setup row on automatically mounted galleries; ambiguous rows, links and other authored content remain visible. On manually placed shortcodes, separate Brizy blocks outside the gallery are not removed. Replacing/deleting associations never deletes shared Media Library files. Actual AI-inferred folding motion remains a separately approved future option.
+
 ## Settings
 **Settings → Portare Gallery** contains fonts (theme inherit/system/sans/serif), text/title sizes and colors, line height, copy-column width, gap, image ratio/rounding, thumbnail spacing/rounding, accent, fade/slide/no image transition, animation duration, entrance effect and text-fade toggle. Styles are scoped to gallery roots. Quote-button colors remain governed by the existing quote plugin/theme, avoiding competing appearance controls.
 
@@ -46,6 +56,7 @@ No custom tables. Product gallery metadata and appearance options are retained o
 ## Developer checks
 ```
 php tests/run-tests.php
+php tests/setup-tests.php
 php qa/lint.php
 npm ci
 npm test

@@ -39,6 +39,7 @@ class PPG_Admin {
             echo '<p class="form-field"><label>'.esc_html(ucwords(str_replace('_',' ',$key))).'</label>'; self::select('ppg_config['.$key.']',$c[$key],$choices); echo '</p>';
         }
         echo '<p class="form-field"><label for="ppg_interval">Autoplay interval (seconds)</label><input type="number" id="ppg_interval" name="ppg_config[interval]" min="1" max="120" step="0.1" value="'.esc_attr($c['interval']).'"></p></div>';
+        if (class_exists('PPG_Setup')) { PPG_Setup::panel($post->ID); }
         echo '<div class="ppg-admin-gallery"><p>Drag rows or use Up/Down. Add images appends without duplicates; Remove only removes this gallery association, never the media file. The featured image always uses the full product description; blank descriptions use the same fallback. Removing all custom rows restores the WooCommerce featured + gallery fallback.</p><input type="hidden" name="ppg_slides_present" value="1"><button type="button" class="button ppg-add-images">Add images</button><ol class="ppg-admin-rows">';
         foreach($rows as $i=>$row) { self::row($i,$row,$product?$product->get_image_id():0); }
         echo '</ol><template id="ppg-row-template">'; self::row('__INDEX__',array('id'=>0,'description'=>'','x'=>50,'y'=>50,'zoom'=>100),0); echo '</template></div></div>';

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.0 — 2026-11-02
+- Added isolated per-product Product Setup area: ordered pictures,15-second image sequences, uploaded videos and optional posters beneath gallery copy.
+- Added local browser MP4 export/download and explicit authenticated save-to-Media-Library workflow; normal product Update controls publication.
+- Added visible media/export/upload errors, playback coordination and reduced-motion/lifecycle handling.
+- Preserved authored Brizy content by default; optional conservative runtime setup-row replacement only. Added metadata contract and reversible rollout notes.
+- Added native fragmented-MP4 duration compatibility, normalized fallback metadata, and wrapped-row preservation regression coverage.
+- AI-inferred folding motion is intentionally deferred; no paid API calls or external image transfer. The optional motion prompt is specified but not yet implemented.
+- Shared Brizy template 11378 was re-saved by Brizy during the staging QA product Update (one duplicate section now hidden on desktop); compiled markup is otherwise identical and the plugin writes product metadata only.
+
+
 ## 0.1.4 — 2026-11-02
 - Filmstrip uses uncropped medium-large responsive image families instead of 150px square thumbnails.
 - Added filmstrip-specific responsive sizes while keeping lazy loading, async decoding, the existing crop, four-slot layout and controls.

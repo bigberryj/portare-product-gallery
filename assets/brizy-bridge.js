@@ -1,6 +1,29 @@
 /* Reversible frontend enhancement: never edits Brizy's saved content. */
 (() => {
   'use strict';
+  const replaceSetupIllustrations = (gallery, preserved) => {
+    const setup = gallery.querySelector('[data-ppg-setup][data-replace-illustrations="1"]');
+    if (!setup) return;
+    // Explicit opt-in only. A unique, image-only authored inner row is reversible;
+    // unknown text, links, widgets or multiple candidate rows must stay visible.
+    const candidates = [...preserved.children].filter(row => {
+      const containers = row.classList.contains('brz-row__container') ? [row] : [...row.querySelectorAll('.brz-row__container')];
+      if (containers.length !== 1 || !containers[0].querySelector('.brz-row--inner') || row.textContent.trim()) return false;
+      const images = [...row.querySelectorAll('img')];
+      if (images.length < 2 || images.length > 4 || images.some(img => !img.closest('.brz-image'))) return false;
+      return [...row.querySelectorAll('*')].every(el => ['DIV', 'SPAN', 'PICTURE', 'SOURCE', 'IMG'].includes(el.tagName));
+    });
+    if (candidates.length === 1) {
+      candidates[0].hidden = true;
+      candidates[0].style.setProperty('display', 'none', 'important');
+      candidates[0].setAttribute('data-ppg-setup-original', '1');
+    } else {
+      const notice = document.createElement('p');
+      notice.className = 'ppg-setup-replace-notice'; notice.setAttribute('role', 'status');
+      notice.textContent = 'The original setup illustrations have been kept because their layout could not be identified safely.';
+      setup.append(notice);
+    }
+  };
   const mount = (finalAttempt = false) => {
     const source = document.querySelector('template[data-ppg-brizy]');
     if (!source || source.dataset.mounted === '1') return;
@@ -53,6 +76,7 @@
     // Preserve supplemental icon rows/links exactly as authored.
     [...items.children].filter(el => el !== titleWrapper && el !== descriptionWrapper).forEach(el => preserved.append(el));
     if (preserved.childNodes.length) gallery.querySelector('.ppg-copy').append(preserved);
+    replaceSetupIllustrations(gallery, preserved);
     gallery.classList.add('ppg-brizy-mounted');
     document.querySelectorAll('[data-ppg-bridge-notice]').forEach(note => note.remove());
     target.outer.before(fragment);
@@ -62,6 +86,7 @@
     target.outer.style.setProperty('display', 'none', 'important');
     source.dataset.mounted = '1';
     if (window.PortareProductGallery) window.PortareProductGallery.init(gallery);
+    if (window.PortareSetupMedia) window.PortareSetupMedia.init(gallery);
     document.dispatchEvent(new CustomEvent('ppg:mounted', {detail: {gallery}}));
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => mount(), {once:true});

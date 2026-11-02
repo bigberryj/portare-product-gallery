@@ -1,8 +1,8 @@
-# Storage schema — Portare Product Gallery 0.1.3
+# Storage schema — Portare Product Gallery 0.2.0
 
 The 0.1.3 admin shortcode helper is derived from the current product ID and stores no data.
 
-No custom tables, no migration/version option, and no activation data writes. Existing absent or malformed metadata normalizes on read. Settings API stores `ppg_settings`; only the plugin's two metadata keys are written by the product save handler.
+No custom tables, no migration/version option, and no activation data writes. Existing absent or malformed metadata normalizes on read. Settings API stores `ppg_settings`; the main gallery handler writes `_ppg_config`/`_ppg_slides`, and the isolated setup handler writes `_ppg_setup` only on its own marked, nonce-checked product Update.
 
 ## Product `_ppg_config`
 
@@ -41,6 +41,24 @@ Ordered list, up to 100 rows, normalized and deduplicated by positive image atta
 A nonempty valid custom list replaces the WooCommerce gallery association list; the product's featured image is still prepended and deduplicated so it remains the initial image. Reordering affects other custom images. Featured-image text always uses the product's full WooCommerce description, regardless of custom text stored for that attachment. Empty custom text falls back to the same full description. With no valid custom rows, use featured image plus WooCommerce gallery IDs. Removing all custom rows therefore restores fallback, not an intentionally empty gallery.
 
 The editor media picker appends and deduplicates. Remove means disassociate from `_ppg_slides`; it never deletes an attachment and never edits `_product_image_gallery` or `_thumbnail_id`. WordPress's native media deletion remains independent.
+
+## Product `_ppg_setup` (0.2.0)
+
+An isolated optional value in the existing `WP_POSTMETA` table; missing values default to disabled. Only `PPG_Setup` writes it on its own marked, nonce/capability-checked product Update. No activation or bulk migration.
+
+| Field | Default | Validation / meaning |
+|---|---|---|
+| enabled | 0 | integer0/1; independent of main gallery autoplay |
+| mode | pictures | pictures / sequence / video |
+| images | [] | ordered unique valid raster attachment IDs, maximum4; sequence/export needs2–4 |
+| heading | empty | plain text, maximum120 characters |
+| caption | empty | plain text, maximum500 characters |
+| motion | 0 | integer0/1; optional gentle pan/zoom, not folding synthesis |
+| video_id | 0 | valid MP4/WebM Media Library attachment |
+| poster_id | 0 | valid raster Media Library attachment |
+| replace_illustrations | 0 | explicit opt-in; only valid playable media can request safe runtime replacement |
+
+The sequence duration is fixed15000ms, not separately stored. Selected IDs are logical references, not new physical FKs; deleted or invalid media is rejected/ignored with visible configured-content errors. No cascade deletion is added. Existing core attachment rows and uploads hold generated videos; a successful upload does not write this option or automatically publish the video. The user must save the selection with normal product Update. No recording bytes, provider keys or external URLs are stored in product metadata.
 
 ## Option `ppg_settings`
 
@@ -96,4 +114,4 @@ Table prefix is installation-defined. These are existing core tables, not new ta
 
 ## Retention
 
-Deactivate and uninstall retain `ppg_settings`, `_ppg_config`, and `_ppg_slides`. No shared media, product content, WooCommerce gallery metadata, Brizy content, compiled HTML, or quote records are deleted or modified. No reset/delete endpoint exists. Removing retained data manually requires a separate explicit operator decision.
+Deactivate and uninstall retain `ppg_settings`, `_ppg_config`, `_ppg_slides`, `_ppg_setup` and associated setup media. No shared media, product content, WooCommerce gallery metadata, Brizy content, compiled HTML, or quote records are deleted or modified. No reset/delete endpoint exists. Removing retained data manually requires a separate explicit operator decision.
