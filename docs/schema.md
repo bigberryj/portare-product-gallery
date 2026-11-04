@@ -1,4 +1,4 @@
-# Storage schema — Portare Product Gallery 0.2.0
+# Storage schema — Portare Product Gallery 0.4.0 candidate
 
 The 0.1.3 admin shortcode helper is derived from the current product ID and stores no data.
 
@@ -60,7 +60,22 @@ An isolated optional value in the existing `WP_POSTMETA` table; missing values d
 
 The sequence duration is fixed15000ms, not separately stored. Selected IDs are logical references, not new physical FKs; deleted or invalid media is rejected/ignored with visible configured-content errors. No cascade deletion is added. Existing core attachment rows and uploads hold generated videos; a successful upload does not write this option or automatically publish the video. The user must save the selection with normal product Update. No recording bytes, provider keys or external URLs are stored in product metadata.
 
-## Option `ppg_settings`
+## Wan job options (0.4.0)
+
+No new SQL tables or indexes. WordPress serializes arrays in existing `WP_OPTIONS.option_value`; these are **not JSON columns**. Job options are non-autoloaded. The core unique `option_name` index is used for atomic lock creation; there are no new physical FKs or cascade deletes.
+
+| Option family | Value | Purpose |
+|---|---|---|
+| `_ppg_ai_job_{job_id}` | serialized job array | Durable render intent, provider task reference and imported result |
+| `_ppg_ai_index_{product_id}` | serialized array of job IDs | Product recovery/discovery |
+| `_ppg_ai_lock_submit_{scope_hash}` | internal lock state | Product-wide paid-submission exclusion |
+| `_ppg_ai_lock_import_{scope_hash}` | internal lock state | Import exclusion/idempotency |
+
+Job fields include `id` (`job_` +16lowercasehex), integer `product_id`/`user_id`, provider `task_id`, bounded plain-text `prompt`, first/last `image_ids`, integer `duration`, enum `resolution`, state, `created`/`updated`, safe error text, `attachment_id` and local result URL. Imported attachments carry `_ppg_ai_job_id` for recovery if the result-row write fails. Scope hashes in lock names are the first32hex characters of SHA-256 over the logical product/job scope. Neither the access key nor recording bytes are stored here. Never expose full internal rows to the browser. Finished history is bounded; active/uncertain paid jobs must remain discoverable until reconciled, not silently expire into a new purchase.
+
+The old aggregate `_ppg_ai_jobs` option belongs to the MiniMax prototype and is retained but not converted into new Wan tasks. Before switching a site with real in-flight legacy jobs, reconcile those jobs separately; do not submit them again. There is no automatic data rewrite on activation. Forward/rollback procedure: `migrations/0.4.0-wan-options.md`.
+
+## `ppg_settings`
 
 All keys are normalized using `PPG::setting_specs()`:
 

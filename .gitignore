@@ -8,3 +8,5 @@ vendor/
 tests/artifacts/
 releases/
 *.cookies.json
+__pycache__/
+*.pyc

@@ -3,7 +3,7 @@
 Price-free, description-led WooCommerce product galleries. Requires WordPress 6.5+, PHP 7.4+, and WooCommerce; quote integration requires Portare Quote Builder.
 
 ## Install
-Upload the plugin ZIP using **Plugins → Add New → Upload Plugin**, then activate. Alternatively copy this folder to `wp-content/plugins/portare-product-gallery/`. No npm/build step is needed at runtime. Automatic replacement is disabled on products by default.
+Upload the plugin ZIP using **Plugins → Add New → Upload Plugin**, then activate. Alternatively copy this folder to `wp-content/plugins/portare-product-gallery/`. No npm/build step is needed for the gallery or browser export. Optional Wan generation additionally needs the server runtime described below. Automatic replacement is disabled on products by default.
 
 ## Product editor
 At the top of the Portare Gallery tab, use the read-only **Gallery shortcode** field and **Copy shortcode** button. The explicit product ID works on any page or elsewhere on the same product page. Choose **Shortcode only** to disable automatic placement without disabling your shortcode. If clipboard access is blocked, select the field and copy manually. No product update is needed to obtain the code.
@@ -34,7 +34,7 @@ In **Products → Edit product → Product data → Portare Gallery → Product 
 
 Use **Preview** to check unsaved choices. **Generate 15-second MP4** renders a real video locally in a supported browser—keep the tab in the foreground. Download it, or save it to the Media Library and then click the product's normal **Update** to publish the selection. Video generation is an image presentation, not synthesized folding mechanics. Unsupported recording, missing images, tainted canvas, interrupted recording and upload failures show visible errors rather than pretending to succeed. No outside generator, AI charge, server FFmpeg or new paid service is used.
 
-The setup area is below the description. Existing Brizy artwork stays unchanged by default. Optional replacement applies only to one safely identifiable image-only retained setup row on automatically mounted galleries; ambiguous rows, links and other authored content remain visible. On manually placed shortcodes, separate Brizy blocks outside the gallery are not removed. Replacing/deleting associations never deletes shared Media Library files. Actual AI-inferred folding motion remains a separately approved future option.
+The setup area is below the description. Existing Brizy artwork stays unchanged by default. Optional replacement applies only to one safely identifiable image-only retained setup row on automatically mounted galleries; ambiguous rows, links and other authored content remain visible. On manually placed shortcodes, separate Brizy blocks outside the gallery are not removed. Replacing/deleting associations never deletes shared Media Library files. AI-inferred motion uses the separately configured Wan workflow below and always needs operator review.
 
 ## Settings
 **Settings → Portare Gallery** contains fonts (theme inherit/system/sans/serif), text/title sizes and colors, line height, copy-column width, gap, image ratio/rounding, thumbnail spacing/rounding, accent, fade/slide/no image transition, animation duration, entrance effect and text-fade toggle. Styles are scoped to gallery roots. Quote-button colors remain governed by the existing quote plugin/theme, avoiding competing appearance controls.
@@ -53,10 +53,27 @@ Four thumbnail slots on desktop, horizontal scrolling for additional images, swi
 ## Data retention and removal
 No custom tables. Product gallery metadata and appearance options are retained on deactivation/uninstall. Media files, WooCommerce descriptions and Brizy content are never deleted. See `docs/schema.md`.
 
+## AI motion creator (optional)
+
+**Wan membership/CLI access and usable paid credits are required.** The panel always explains its configuration state. The Wan adapter replaces the unverified MiniMax-only prototype; an old `PPG_AI_VIDEO_KEY` does not enable Wan.
+
+1. The WordPress host needs Node22+ and the pinned `@wan-ai/cli@0.0.3` runtime at the fixed paths in `deploy/wordpress/README.md`. The plugin ZIP alone does not install these system dependencies.
+2. Set `WAN_ACCESS_KEY` in the **server's secret environment**, or configure the `PPG_WAN_ACCESS_KEY` PHP constant through your host's protected configuration. Never put the real value in source control, product content, browser JavaScript or chat. Local `wan auth login` does not authenticate Railway.
+3. On Railway/OpenLiteSpeed, use the included startup allowlist so the key reaches the web worker through `railway_env()`. A shell environment check alone is insufficient.
+4. In the product's setup panel, choose two distinct **First frame / Last frame** images from the setup image list. Use matching viewpoints where possible. Enter an optional plain-text motion prompt (max500characters), and choose5/10/15seconds and480P/720P.
+5. Check the **paid credits + external image transfer** approval box for each render, then select **Generate with Wan**. No render starts on page load. **Resume** checks an existing job without purchasing another.
+6. Review the completed preview, press **Use this video**, then save the normal product **Update**. Generation and preview do not change the product's selected video. Imported attachments are ordinary public Media Library assets, not private storage.
+
+Errors are visible. An uncertain submission must not be retried automatically: use Resume and check the account's task history before any new purchase. AI-generated folding is not mechanically guaranteed; reject a clip that invents hinges, changes parts or depicts an unsafe setup sequence. Credit balance is not a count of remaining videos, and no exact render price is inferred from the balance.
+
+See `deploy/wordpress/README.md` for the runtime/credential/deployment instructions, `docs/security.md` for limits and `evidence/` for the actually exercised verification scope.
+
 ## Developer checks
 ```
 php tests/run-tests.php
 php tests/setup-tests.php
+php tests/setup-ai-tests.php
+php tests/wan-isolation-tests.php
 php qa/lint.php
 npm ci
 npm test

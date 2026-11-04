@@ -8,6 +8,17 @@
 - Success envelope `{success:true,data:{id,url}}` describes the new public Media Library attachment. It does **not** update the product selection; normal nonce-checked Update persists `_ppg_setup`.
 - Reject missing/unauthorized/invalid nonce requests, over25MB files, non-MP4 content, dimensions beyond1280x720 and clips outside14–17seconds. Uploaded prepared videos use the normal Media Library picker; the stricter generator endpoint is for bounded15-second exports.
 
+## Product setup AI motion
+
+All three actions require an authenticated user with `edit_post` on the product plus `upload_files`, and a per-product nonce (`ppg_setup_ai_{product_id}`). The provider credential is read server-side only; it is never emitted into markup or JSON.
+
+- `POST wp-admin/admin-ajax.php`, action `ppg_setup_ai_generate`: start one AI motion render. Fields `product_id`, `nonce`, `consent=1`, `prompt` (optional, max500characters), `first_frame_id`, `last_frame_id`, `duration` (5/10/15) and `resolution` (480P/720P). Frames must be two distinct PNG/JPEG/WebP attachments in the product's setup image list. Durable intent is required before the paid provider call; ambiguous submission outcomes are not automatically resubmitted.
+- `POST wp-admin/admin-ajax.php`, action `ppg_setup_ai_status`: poll one render. Fields `product_id`, `nonce`, `job_id`. An absent/blank job ID recovers the current user's latest job on that product; a malformed nonblank ID is rejected rather than treated as recovery. Returns `idle`, a processing/unknown-submission state, `succeeded` (with `attachment_id` and local `url`) or a visible failure reason. Ownership is checked; another user's job is not disclosed.
+- Failure codes: `invalid_product` (400), `forbidden` / `invalid_nonce` / `consent_required` (403), `invalid_images` / `invalid_job` (400), `unknown_job` (404), `already_running` (409), `job_failed` (409), `provider_not_configured` (503), `provider_error` (upstream status), `rate_limited` (429).
+- `POST` action `ppg_setup_ai_health` is a per-product nonce/capability-checked runtime/authentication check, rate-limited to one per60seconds, not a generation call; it must not be run merely to render the editor's public configuration.
+- Imported attachments are ordinary **public** Media Library assets. Import/preview never writes `_ppg_setup`; explicit Use stages fields and normal product Update persists the selection.
+- `public_config()` checks configuration/runtime availability without executing Wan. A successful offline test is not proof of provider access or a successful paid render.
+
 ## Main gallery
 
 - `[portare_product_gallery]`: render current product context.

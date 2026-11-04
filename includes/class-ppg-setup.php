@@ -10,7 +10,8 @@
  * Scope notes:
  * - The sequence presents existing illustrations. It never synthesises folding
  *   motion and is never labelled as mechanical simulation.
- * - No external service, paid API or remote media fetch is used.
+ * - Sequence/export are local; the separate Wan AI controller is optional
+ *   and requires explicit paid/external-transfer consent for each render.
  * - Uploads are accepted as MP4 only, are size/duration/dimension checked and
  *   are stored as ordinary public product media through core media handling.
  */
@@ -32,6 +33,7 @@ class PPG_Setup {
 
     public static function init() {
         add_action('wp_ajax_ppg_setup_upload', array(__CLASS__, 'ajax_upload'));
+        if (class_exists('PPG_Setup_AI')) { PPG_Setup_AI::init(); }
         // Priority 20 keeps this save after the core product meta write.
         add_action('woocommerce_process_product_meta', array(__CLASS__, 'save'), 20);
         add_action('admin_enqueue_scripts', array(__CLASS__, 'assets'));
@@ -171,6 +173,38 @@ class PPG_Setup {
         $poster_id = $config['poster_id'];
         $video_url = $video_id ? self::attachment_url($video_id) : '';
         $poster_url = $poster_id ? self::image_url($poster_id) : '';
+        // The AI block is rendered in every case: when the provider is not
+        // configured the reason is shown instead of the controls, so the
+        // operator is never left guessing why the feature is missing.
+        $ai_defaults = array(
+            'enabled' => false,
+            'provider' => 'Wan',
+            'message' => '',
+            'maxPrompt' => 500,
+            'minImages' => 2,
+            'maxImages' => 4,
+            'duration' => 5,
+        );
+        $ai_public = $ai_defaults;
+        if (class_exists('PPG_Setup_AI') && is_callable(array('PPG_Setup_AI', 'public_config'))) {
+            $reported = PPG_Setup_AI::public_config();
+            if (is_array($reported)) { $ai_public = array_merge($ai_defaults, $reported); }
+        }
+        $ai_enabled = !empty($ai_public['enabled']);
+        $ai_provider = is_string($ai_public['provider']) && $ai_public['provider'] !== '' ? $ai_public['provider'] : 'Wan';
+        $ai_message = is_string($ai_public['message']) ? trim($ai_public['message']) : '';
+        $ai_max_prompt = max(0, (int) $ai_public['maxPrompt']);
+        $ai_min_images = max(1, (int) $ai_public['minImages']);
+        $ai_max_images = max($ai_min_images, (int) $ai_public['maxImages']);
+        $ai_server_duration = max(1, (int) $ai_public['duration']);
+        // The duration control offers the bounded set Wan accepts and always
+        // starts at 5 seconds, which is the documented default.
+        $ai_default_duration = 5;
+        $ai_generate_url = class_exists('PPG_Setup_AI') && is_callable(array('PPG_Setup_AI', 'ajax_url')) ? PPG_Setup_AI::ajax_url('ppg_setup_ai_generate') : '';
+        $ai_status_url = class_exists('PPG_Setup_AI') && is_callable(array('PPG_Setup_AI', 'ajax_url')) ? PPG_Setup_AI::ajax_url('ppg_setup_ai_status') : '';
+        $ai_nonce = class_exists('PPG_Setup_AI') && is_callable(array('PPG_Setup_AI', 'nonce')) ? PPG_Setup_AI::nonce($id) : '';
+        if ($ai_generate_url === '' && function_exists('admin_url')) { $ai_generate_url = admin_url('admin-ajax.php'); }
+        if ($ai_status_url === '' && function_exists('admin_url')) { $ai_status_url = admin_url('admin-ajax.php'); }
         ?>
  <div class="ppg-setup-admin" data-product-id="<?php echo esc_attr($id); ?>" data-upload-url="<?php echo esc_url(self::ajax_url()); ?>" data-upload-nonce="<?php echo esc_attr(self::export_nonce($id)); ?>">
   <h3 class="ppg-setup-admin-title">Product setup media</h3>
@@ -215,6 +249,32 @@ class PPG_Setup {
    <button type="button" class="button ppg-setup-use-video" hidden disabled><?php echo esc_html('Use exported video'); ?></button>
    <a class="button ppg-setup-download" href="#" hidden><?php echo esc_html('Download MP4'); ?></a>
   </div>
+  <div class="ppg-setup-ai" data-ai-enabled="<?php echo esc_attr($ai_enabled ? '1' : '0'); ?>" data-ai-provider="<?php echo esc_attr($ai_provider); ?>" data-ai-reason="<?php echo esc_attr($ai_message); ?>" data-ai-duration="<?php echo esc_attr($ai_server_duration); ?>" data-ai-min-images="<?php echo esc_attr($ai_min_images); ?>" data-ai-max-images="<?php echo esc_attr($ai_max_images); ?>" data-ai-generate-url="<?php echo esc_url($ai_generate_url); ?>" data-ai-status-url="<?php echo esc_url($ai_status_url); ?>" data-ai-nonce="<?php echo esc_attr($ai_nonce); ?>">
+   <h4 class="ppg-setup-ai-title"><?php echo esc_html('AI motion (' . $ai_provider . ')'); ?></h4>
+   <?php if (!$ai_enabled) { ?>
+    <p class="description ppg-setup-ai-unavailable"><?php echo esc_html($ai_message !== '' ? $ai_message : 'AI motion generation is not configured on this site. The provider credential is missing on the server, so no render can be started here.'); ?></p>
+   <?php } else { ?>
+    <p class="description ppg-setup-ai-intro"><?php echo esc_html('Pick the first and the last setup image, describe the movement if you want, and the ' . $ai_provider . ' service renders a setup clip between them. This is an external, paid service: the request spends paid ' . $ai_provider . ' credits and uploads the selected setup images to the ' . $ai_provider . ' service. The result is a draft in the Media Library; it is only attached to this product when you press "Use this video", and it is published when you update the product.'); ?></p>
+    <p class="form-field"><label for="ppg_setup_ai_first_frame"><?php echo esc_html('First frame'); ?></label><select id="ppg_setup_ai_first_frame" class="ppg-setup-ai-frame-select"><option value=""><?php echo esc_html('Select the first setup image'); ?></option></select><span class="description"><?php echo esc_html('The setup image the clip starts from. The list follows the images selected above.'); ?></span></p>
+    <p class="form-field"><label for="ppg_setup_ai_last_frame"><?php echo esc_html('Last frame'); ?></label><select id="ppg_setup_ai_last_frame" class="ppg-setup-ai-frame-select"><option value=""><?php echo esc_html('Select the last setup image'); ?></option></select><span class="description"><?php echo esc_html('The setup image the clip ends on. It must be a different image than the first frame.'); ?></span></p>
+    <p class="form-field"><label for="ppg_setup_ai_prompt"><?php echo esc_html('Describe the animation (optional)'); ?></label><textarea id="ppg_setup_ai_prompt" rows="3" maxlength="<?php echo esc_attr($ai_max_prompt); ?>" placeholder="<?php echo esc_attr('Show the table unfolding from its folded position to fully open, following the uploaded setup steps. Keep the camera fixed and preserve the product shape and proportions.'); ?>"></textarea><span class="description"><?php echo esc_html('Leave empty to use the default setup sequence prompt. Maximum ' . (int) $ai_max_prompt . ' characters.'); ?></span></p>
+    <p class="form-field"><label for="ppg_setup_ai_duration"><?php echo esc_html('Clip duration'); ?></label><select id="ppg_setup_ai_duration">
+     <?php foreach (array('5' => '5 seconds', '10' => '10 seconds', '15' => '15 seconds') as $value => $label) { ?><option value="<?php echo esc_attr($value); ?>" <?php echo selected($ai_default_duration, $value, false); ?>><?php echo esc_html($label); ?></option><?php } ?>
+    </select></p>
+    <p class="form-field"><label for="ppg_setup_ai_resolution"><?php echo esc_html('Clip resolution'); ?></label><select id="ppg_setup_ai_resolution">
+     <?php foreach (array('480P' => '480P (smaller video)', '720P' => '720P (default)') as $value => $label) { ?><option value="<?php echo esc_attr($value); ?>" <?php echo selected('720P', $value, false); ?>><?php echo esc_html($label); ?></option><?php } ?>
+    </select></p>
+    <p class="form-field"><label for="ppg_setup_ai_consent"><?php echo esc_html('I approve that this request spends paid ' . $ai_provider . ' credits and uploads the selected setup images to the external ' . $ai_provider . ' service'); ?></label><input type="checkbox" id="ppg_setup_ai_consent" value="1"><span class="description"><?php echo esc_html('Required for every render. Nothing is sent and no credit is spent until this is checked.'); ?></span></p>
+    <p class="ppg-setup-ai-actions"><button type="button" class="button button-primary ppg-setup-ai-generate"><?php echo esc_html('Generate with ' . $ai_provider); ?></button> <button type="button" class="button ppg-setup-ai-resume"><?php echo esc_html('Resume'); ?></button></p>
+    <p class="ppg-setup-ai-status" role="status" aria-live="polite"></p>
+    <p class="ppg-setup-ai-error" role="alert" aria-live="assertive"></p>
+    <div class="ppg-setup-ai-result" hidden>
+     <p class="ppg-setup-ai-result-label"></p>
+     <div class="ppg-setup-ai-preview"></div>
+     <p class="ppg-setup-ai-actions"><button type="button" class="button ppg-setup-ai-use-video"><?php echo esc_html('Use this video'); ?></button></p>
+    </div>
+   <?php } ?>
+  </div>
   <p class="ppg-setup-admin-status" role="status" aria-live="polite"></p>
   <p class="ppg-setup-admin-error" role="alert"></p>
  </div>
@@ -255,6 +315,8 @@ class PPG_Setup {
         self::register_assets();
         wp_register_script('ppg-setup-admin', plugins_url('assets/setup-admin.js', PPG_PLUGIN_FILE), array('jquery', 'ppg-setup'), PPG_VERSION, true);
         wp_enqueue_script('ppg-setup-admin');
+        wp_register_script('ppg-setup-ai-admin', plugins_url('assets/setup-ai-admin.js', PPG_PLUGIN_FILE), array('ppg-setup'), PPG_VERSION, true);
+        wp_enqueue_script('ppg-setup-ai-admin');
         wp_enqueue_style('ppg-setup');
     }
 

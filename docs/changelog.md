@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.4.0 — Wan integration candidate, 2026-11-03
+- Replaced the MiniMax-only prototype with a Wan member-CLI adapter and explicit first/last-frame controls.
+- Added preview plus explicit Use this video, per-render paid/image-transfer consent and resume rather than automatic resubmission.
+- Added pinned Node/Wan staging image inputs, restricted finished-media egress and private backup/content-snapshot tooling.
+- Release verification and remaining live-provider gates are recorded in evidence; this candidate entry is not a claim of a completed paid render.
+
+## 0.3.0 — 2026-11-02 (prototype, no verified generated clip)
+- Added an optional motion-prompt/provider scaffold. The available MiniMax key did not establish a usable video-generation path; no real generated clip was proven.
+- The provider credential stays server-side; every call is nonce and capability checked and needs explicit per-request consent before images are sent.
+- Renders are tracked as jobs written before the paid call, rate limited, and validated (container, MIME, size, duration, frame size) before entering the Media Library as a draft.
+- Generated clips publish only through a normal product Update.
+
 ## 0.2.0 — 2026-11-02
 - Added isolated per-product Product Setup area: ordered pictures,15-second image sequences, uploaded videos and optional posters beneath gallery copy.
 - Added local browser MP4 export/download and explicit authenticated save-to-Media-Library workflow; normal product Update controls publication.

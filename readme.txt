@@ -3,7 +3,7 @@ Contributors: bigberryj
 Requires at least: 6.5
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 0.2.0
+Stable tag: 0.4.0
 License: MIT
 
 Price-free WooCommerce galleries with per-image descriptions, responsive layouts and existing Portare Quote Builder modal integration.
@@ -12,8 +12,12 @@ Price-free WooCommerce galleries with per-image descriptions, responsive layouts
 Upload and activate the plugin. Edit a product's Portare Gallery tab or place [portare_product_gallery product_id="10440"]. Global appearance is under Settings -> Portare Gallery.
 
 == Changelog ==
+= 0.4.0 =
+Optional Wan first/last-frame creator, bounded settings, explicit paid-image-transfer consent, durable job recovery and preview before Use this video. Requires the separately installed server Node/Wan runtime and server-only WAN_ACCESS_KEY. No paid render starts on page load.
+= 0.3.0 =
+Experimental MiniMax motion scaffold; no successful real generated clip was verified.
 = 0.2.0 =
-Product Setup pictures,15-second image animation, browser-generated MP4 export and video/poster controls. No AI inference or template rewrites.
+Product Setup pictures, 15-second image animation, browser-generated MP4 export and video/poster controls. No AI inference or template rewrites.
 = 0.1.4 =
 Sharper responsive filmstrip images without changing the gallery layout or media library.
 = 0.1.3 =

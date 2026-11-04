@@ -439,3 +439,63 @@
     transform: none;
   }
 }
+
+/* AI motion block inside the product editor setup panel. */
+.ppg-setup-ai {
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid #dcdcde;
+  border-radius: 4px;
+  background: #fff;
+}
+.ppg-setup-ai-title {
+  margin: 0 0 6px;
+}
+.ppg-setup-ai-intro,
+.ppg-setup-ai-unavailable {
+  margin: 0 0 10px;
+  max-width: 70ch;
+}
+.ppg-setup-ai-actions {
+  margin: 8px 0 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.ppg-setup-ai-status {
+  margin: 6px 0 0;
+}
+.ppg-setup-ai-error {
+  margin: 6px 0 0;
+  color: #9f2525;
+  font-weight: 600;
+}
+.ppg-setup-ai-frame-select {
+  min-width: 220px;
+  max-width: 100%;
+}
+/* The generated clip is only a preview: it is attached to the product by the
+   explicit "Use this video" button, never by the render itself. */
+.ppg-setup-ai-result {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px dashed #c3c4c7;
+  background: #f6f7f7;
+}
+.ppg-setup-ai-result-label {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.ppg-setup-ai-preview {
+  margin: 0;
+}
+.ppg-setup-ai-video {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  border-radius: 8px;
+  background: #000;
+}
