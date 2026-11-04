@@ -18,13 +18,16 @@ const ORIGIN='https://portare.up.railway.app';
   });
   await page.goto(ORIGIN+'/wp-admin/post.php?post=11012&action=edit',{waitUntil:'domcontentloaded',timeout:90000});assert(!page.url().includes('wp-login'));
   await page.locator('.product_data_tabs .ppg_options a').click();const panel=page.locator('.ppg-setup-ai');await panel.waitFor({state:'visible'});
-  assert.equal(await panel.count(),1);assert.equal(await page.locator('#ppg_setup_ai_first_frame').count(),1);assert.equal(await page.locator('#ppg_setup_ai_last_frame').count(),1);pass('real authenticated product tab renders the Wan frame/settings panel');
-  assert.equal(await page.locator('#ppg_setup_ai_consent').isChecked(),false);pass('paid image-transfer consent starts unchecked');
+  assert.equal(await panel.count(),1);pass('real authenticated product tab renders the Wan panel');
   const enabled=(await panel.getAttribute('data-ai-enabled'))==='1';
-  if(!enabled){assert.equal(await page.locator('.ppg-setup-ai-generate').isDisabled(),true);assert((await page.locator('.ppg-setup-ai-unavailable').innerText()).trim());pass('missing configuration visibly disables generation in the real web worker');}
-  else{await page.waitForFunction(()=>!document.querySelector('.ppg-setup-ai-generate').disabled);pass('configured editor recovers an idle job state without generating');}
+  assert.equal(enabled,false,'this reviewed staging check requires disabled generation');
+  assert((await page.locator('.ppg-setup-ai-unavailable').innerText()).trim());
+  assert.equal(await page.locator('.ppg-setup-ai-generate').count(),0);
+  assert.equal(await page.locator('#ppg_setup_ai_consent').count(),0);
+  pass('missing configuration visibly explains the gate and omits paid-render controls in the real web worker');
   const denied=await context.request.post(ORIGIN+'/wp-admin/admin-ajax.php',{form:{action:'ppg_setup_ai_generate',product_id:'11012',nonce:'invalid',consent:'1'}});assert.equal(denied.status(),403);pass('live generate endpoint rejects an invalid nonce before paid submission');
-  await panel.scrollIntoViewIfNeeded();await panel.screenshot({path:path.join(out,'wan-staging-desktop.png')});await page.setViewportSize({width:390,height:844});await panel.scrollIntoViewIfNeeded();await panel.screenshot({path:path.join(out,'wan-staging-mobile.png')});
+  await panel.scrollIntoViewIfNeeded();await panel.screenshot({path:path.join(out,'wan-staging-desktop.png')});await page.setViewportSize({width:390,height:844});await panel.scrollIntoViewIfNeeded();await page.waitForTimeout(600);await panel.screenshot({path:path.join(out,'wan-staging-mobile.png')});await page.screenshot({path:path.join(out,'wan-staging-mobile-full.png'),fullPage:true});
+  assert.equal(await panel.evaluate(el=>{const r=el.getBoundingClientRect();const top=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return top!==null&&el.contains(top);}),true,'mobile panel must be visibly painted, not covered by a resize overlay');
   const bounds=await panel.boundingBox();assert(bounds.x>=-1&&bounds.x+bounds.width<=391);pass('real WordPress Wan panel fits the phone viewport');
   const known=errors.filter(e=>e.includes('e.get is not a function')&&e.includes('/brizy-pro/public/editor-build/prod/js/preview.pro.min.js'));
   assert.deepEqual(errors.filter(e=>!known.includes(e)),[]);assert.equal(paidRequests,0);pass('no new JavaScript exceptions and no browser paid-generation attempts');
