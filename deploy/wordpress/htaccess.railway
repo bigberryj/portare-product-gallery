@@ -1,0 +1,15 @@
+# Railway staging: existing local uploads win; archived uploads are redirected
+# through a short-lived signed object-storage URL.
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^\.railway-env\.php$ - [F,L]
+RewriteRule ^health/?$ /railway-health.php [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^wp-content/uploads/(.*)$ /railway-media.php?key=$1 [L,QSA,NE]
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>

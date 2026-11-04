@@ -1,0 +1,7 @@
+{
+  "name": "portare-wan-runtime",
+  "version": "0.4.0",
+  "private": true,
+  "description": "Pinned server-side Wan CLI runtime for Portare staging",
+  "dependencies": {"@wan-ai/cli": "0.0.3"}
+}

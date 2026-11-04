@@ -1,0 +1,20 @@
+{
+  "origin": "https://portare.up.railway.app",
+  "checks": [
+    "one gallery only on real Brizy page",
+    "original intro row retained but hidden",
+    "both existing folding/rolling icons retained",
+    "six existing product images including featured",
+    "more than four thumbnails overflow horizontally",
+    "real main image loaded",
+    "click swaps real main image and active thumbnail",
+    "keyboard End selects final image",
+    "existing product-specific quote modal loads fields",
+    "quote modal closes with Escape",
+    "mobile page has no horizontal overflow",
+    "mobile title/image/thumbs/description order",
+    "mobile quote modal opens",
+    "no real-page JavaScript exceptions"
+  ],
+  "errors": []
+}

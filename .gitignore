@@ -1,0 +1,12 @@
+.env*
+!.env.example
+node_modules/
+vendor/
+*.zip
+*.tar.gz
+*.log
+tests/artifacts/
+releases/
+*.cookies.json
+__pycache__/
+*.pyc
